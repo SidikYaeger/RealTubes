@@ -1,3 +1,6 @@
-Aplikasi ini digunakan untuk mencatat dan mengelola proyek freelance yang sedang dikerjakan oleh pengguna.
-Data utama yang digunakan adalah daftar proyek, klien, deadline, dan status proyek.
-Pengguna aplikasi adalah pekerja lepas yang ingin melacak perkembangan proyek mereka.
+This application is used to record and manage freelance projects that are being worked on by users.
+The main data used is a list of projects, clients, deadlines, and project status.
+The application users are freelancers who want to track the progress of their projects.
+
+App by Muhammad Fazil Ataurrahman & Zhafir Muhammad Tectona Grandito
+-Telkom University-
