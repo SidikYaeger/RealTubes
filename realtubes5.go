@@ -59,7 +59,7 @@ func menu(n *int) {
 	fmt.Println("┃  ╚═╝     ╚═╝╚══════╝╚═╝  ╚═══╝ ╚══════╝ ┃")
 	fmt.Println("--------------------------------------------------------------------------")
 	fmt.Println("1. Tambah Proyek")
-	fmt.Println("2. Perbarui/edit Proyek")
+	fmt.Println("2. Perbarui/Edit Proyek")
 	fmt.Println("3. Cari Proyek")
 	fmt.Println("4. Tampilkan Proyek")
 	fmt.Println("5. Tutup App")
