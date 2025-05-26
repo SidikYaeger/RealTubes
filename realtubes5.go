@@ -2,19 +2,25 @@ package main
 
 import (
 	"fmt"
+	"time"
 )
 
 var no = 0
 
 type proyek struct {
-	nama    string
-	klien   string
-	bayaran int
-	status  string
-	sisa    int
+	nama     string
+	klien    string
+	deadline time.Time
+	bayaran  int
+	status   string
+	sisa     int
 }
 
-var daftar [1000]proyek
+var daftar []proyek
+
+func noproyek(p proyek) {
+	daftar = append(daftar, p)
+}
 
 func main() {
 	var n int
@@ -29,16 +35,12 @@ func main() {
 			tambahproyek()
 			no++
 		case 2:
-			if no <= 0 {
-				fmt.Printf("tidak ada data\n\n")
-				return
-			}
-			updatestatus()
+			editdata()
 		case 3:
 			cari()
 		case 4:
 			if no <= 0 {
-				fmt.Printf("tidak ada data\n\n")
+				fmt.Printf("Tidak ada data\n\n")
 				return
 			}
 			tampil()
@@ -57,14 +59,14 @@ func menu(n *int) {
 	fmt.Println("┃  ██║╚██╔╝██║██╔══╝  ██║╚██╗██║██║   ██║ ┃")
 	fmt.Println("┃  ██║ ╚═╝ ██║███████╗██║ ╚████║████████║ ┃")
 	fmt.Println("┃  ╚═╝     ╚═╝╚══════╝╚═╝  ╚═══╝ ╚══════╝ ┃")
-	fmt.Println("--------------------------------------------------------------------------")
-	fmt.Println("1. Tambah Proyek")
-	fmt.Println("2. Perbarui/Edit Proyek")
-	fmt.Println("3. Cari Proyek")
-	fmt.Println("4. Tampilkan Proyek")
+	fmt.Println("----------------------------------------------------------------------------------------------")
+	fmt.Println("1. Tambah proyek")
+	fmt.Println("2. Perbarui/edit proyek")
+	fmt.Println("3. Cari proyek")
+	fmt.Println("4. Tampilkan proyek")
 	fmt.Println("5. Tutup App")
-	fmt.Println("--------------------------------------------------------------------------")
-	fmt.Print("Silahkan Pilih Opsi: ")
+	fmt.Println("----------------------------------------------------------------------------------------------")
+	fmt.Print("Silahkan pilih opsi: ")
 	fmt.Scan(n)
 	clear()
 }
@@ -74,32 +76,45 @@ func clear() {
 }
 
 func tambahproyek() {
+	var p proyek
+	var inptgl string
 
 	fmt.Print("Nama Proyek: ")
-	fmt.Scan(&daftar[no].nama)
+	fmt.Scan(&p.nama)
 
 	fmt.Print("Nama Klien: ")
-	fmt.Scan(&daftar[no].klien)
+	fmt.Scan(&p.klien)
 
 	fmt.Print("Jumlah Bayaran: ")
-	fmt.Scan(&daftar[no].bayaran)
+	fmt.Scan(&p.bayaran)
 
-	fmt.Print("Status: ")
-	fmt.Scan(&daftar[no].status)
+	fmt.Print("Status Proyek(Selesai/Pending): ")
+	fmt.Scan(&p.status)
 
-	fmt.Print("Deadline(sisa hari): ")
-	fmt.Scan(&daftar[no].sisa)
+	fmt.Print("Deadline(Format DD-MM-YYYY): ")
+	fmt.Scan(&inptgl)
 
+	format := "02-01-2006"
+	t, err := time.Parse(format, inptgl)
+	if err != nil {
+		fmt.Println("Format tanggal tidak valid. Gunakan format DD-MM-YYYY.")
+		return
+	}
+	p.deadline = t
+
+	noproyek(p)
+	sisawaktu()
+	tunggu()
 	clear()
 }
 
 func cari() {
 	var n int
-	fmt.Println("Cari pakai apa?")
-	fmt.Println("--------------------------------------------------------------------------")
+	fmt.Println("Cari berdasarkan apa?")
+	fmt.Println("----------------------------------------------------------------------------------------------")
 	fmt.Println("1. Nama Klien")
 	fmt.Println("2. Nama Proyek")
-	fmt.Println("--------------------------------------------------------------------------")
+	fmt.Println("----------------------------------------------------------------------------------------------")
 	fmt.Print("Opsi:")
 	fmt.Scan(&n)
 	clear()
@@ -120,11 +135,15 @@ func cariklien() {
 	head()
 	for i < no {
 		if daftar[i].klien == key {
-			fmt.Printf("%-2d | %-15s | %-15s | %-10d | %-8s | %d hari lagi\n", size, daftar[i].nama, daftar[i].klien, daftar[i].bayaran, daftar[i].status, daftar[i].sisa)
+			fmt.Printf("%-2d | %-15s | %-15s | %-10d | %-8s | %s\n", size, daftar[i].nama, daftar[i].klien, daftar[i].bayaran, daftar[i].status, daftar[i].deadline)
 			size++
 		}
 		i++
 	}
+	if size <= 0 {
+		fmt.Println("Nama klien tidak ditemukan")
+	}
+	tunggu()
 
 }
 
@@ -137,11 +156,15 @@ func cariproyek() {
 	head()
 	for i < no {
 		if daftar[i].nama == key {
-			fmt.Printf("%-2d | %-15s | %-15s | %-10d | %-8s | %d hari lagi\n", size, daftar[i].nama, daftar[i].klien, daftar[i].bayaran, daftar[i].status, daftar[i].sisa)
+			fmt.Printf("%-2d | %-15s | %-15s | %-10d | %-8s | %s (%d hari lagi)\n", size, daftar[i].nama, daftar[i].klien, daftar[i].bayaran, daftar[i].status, daftar[i].deadline.Format("02-01-2006"), daftar[i].sisa)
 			size++
 		}
 		i++
 	}
+	if size <= 0 {
+		fmt.Println("Nama proyek tidak ditemukan")
+	}
+	tunggu()
 
 }
 
@@ -149,13 +172,14 @@ func tampil() {
 	var i, n int
 	head()
 	for i < no {
-		fmt.Printf("%-2d | %-15s | %-15s | %-10d | %-8s | %d hari lagi\n", i+1, daftar[i].nama, daftar[i].klien, daftar[i].bayaran, daftar[i].status, daftar[i].sisa)
+		fmt.Printf("%-2d | %-15s | %-15s | %-10d | %-8s | %s (%d hari lagi)\n", i+1, daftar[i].nama, daftar[i].klien, daftar[i].bayaran, daftar[i].status, daftar[i].deadline.Format("02-01-2006"), daftar[i].sisa)
 		i++
 	}
-	fmt.Println("--------------------------------------------------------------------------")
+	fmt.Println("----------------------------------------------------------------------------------------------")
 	fmt.Println("1. Back to menu")
 	fmt.Println("2. sort")
 	fmt.Println("3. Hapus")
+	fmt.Println("4. Edit")
 	fmt.Print("Opsi: ")
 	fmt.Scan(&n)
 	switch n {
@@ -163,7 +187,7 @@ func tampil() {
 		clear()
 		return
 	case 2:
-		fmt.Println("--------------------------------------------------------------------------")
+		fmt.Println("----------------------------------------------------------------------------------------------")
 		fmt.Println("1. Deadline ")
 		fmt.Println("2. Gaji")
 		fmt.Println("3. Back to menu")
@@ -180,6 +204,10 @@ func tampil() {
 		}
 	case 3:
 		hapus()
+	case 4:
+		editdata()
+	default:
+		return
 	}
 
 }
@@ -188,12 +216,10 @@ func hapus() {
 	var i int
 	fmt.Print("Masukkan nomor proyek yang ingin dihapus: ")
 	fmt.Scan(&i)
-	for j := i - 1; j < no-1; j++ {
-		daftar[j] = daftar[j+1]
-	}
-
+	daftar = append(daftar[:i-1], daftar[i:]...)
 	no--
 	fmt.Println("Proyek berhasil dihapus.")
+	tunggu()
 	tampil()
 }
 
@@ -252,15 +278,29 @@ func sortgaji() {
 }
 
 func head() {
-	fmt.Println("--------------------------------------------------------------------------")
+	fmt.Println("----------------------------------------------------------------------------------------------")
 	fmt.Println("No | Nama Proyek     | Nama Klien      | Gaji       | Status   | Deadline")
-	fmt.Println("--------------------------------------------------------------------------")
+	fmt.Println("----------------------------------------------------------------------------------------------")
 }
 
-func updatestatus() {
+func sisawaktu() {
+	var selisih time.Duration
+	for i := 0; i < no; i++ {
+		selisih = daftar[i].deadline.Sub(time.Now())
+		daftar[i].sisa = int(selisih.Hours() / 24)
+	}
+}
+
+func editdata() {
 	var a int
+	var inptgl string
 	fmt.Print("Input nomor data yang ingin diubah: ")
 	fmt.Scan(&a)
+	if a < 1 || a > no {
+		fmt.Println("Nomor proyek tidak valid.")
+		return
+	}
+
 	fmt.Print("Ubah nama proyek: ")
 	fmt.Scan(&daftar[a-1].nama)
 	fmt.Print("Ubah nama klien: ")
@@ -269,8 +309,27 @@ func updatestatus() {
 	fmt.Scan(&daftar[a-1].bayaran)
 	fmt.Print("Ubah status: ")
 	fmt.Scan(&daftar[a-1].status)
-	fmt.Print("Ubah deadline(sisa hari): ")
-	fmt.Scan(&daftar[a-1].sisa)
+	fmt.Print("Ubah deadline(DD-MM-YYYY): ")
+	fmt.Scan(&inptgl)
 	fmt.Println("Data berhasil diubah.")
+	format := "02-01-2006"
+	t, err := time.Parse(format, inptgl)
+	if err != nil {
+		fmt.Println("Format tanggal tidak valid. Gunakan format DD-MM-YYYY.")
+		return
+	}
+	daftar[a-1].deadline = t
+	sisawaktu()
 	tampil()
 }
+
+func tunggu() {
+	fmt.Print("Ketik 'ok' untuk melanjutkan: ")
+	var s string
+	fmt.Scan(&s)
+	for s != "ok" {
+		fmt.Print("Silahkan ketik 'ok' untuk melanjutkan: ")
+		fmt.Scan(&s)
+	}
+}
+
