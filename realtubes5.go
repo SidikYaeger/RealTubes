@@ -279,7 +279,7 @@ func sortgaji() {
 
 func head() {
 	fmt.Println("----------------------------------------------------------------------------------------------")
-	fmt.Println("No | Nama Proyek     | Nama Klien      | Gaji       | Status   | Deadline")
+	fmt.Println("No | Nama Proyek            | Nama Klien            | Gaji       | Status   | Deadline")
 	fmt.Println("----------------------------------------------------------------------------------------------")
 }
 
