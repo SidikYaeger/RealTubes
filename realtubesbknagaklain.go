@@ -38,6 +38,8 @@ func main() {
 			if no <= 0 {
 				fmt.Printf("Tidak ada data\n\n")
 				return
+				tunggu()
+				menu(&n)
 			}
 			tampil()
 		case 5:
@@ -56,10 +58,10 @@ func menu(n *int) {
 	fmt.Println("┃  ██║ ╚═╝ ██║███████╗██║ ╚████║████████║ ┃")
 	fmt.Println("┃  ╚═╝     ╚═╝╚══════╝╚═╝  ╚═══╝ ╚══════╝ ┃")
 	fmt.Println("--------------------------------------------------------------------------------------------------")
-	fmt.Println("1. Tambah proyek")
-	fmt.Println("2. Perbarui/edit proyek")
-	fmt.Println("3. Cari proyek")
-	fmt.Println("4. Tampilkan proyek")
+	fmt.Println("1. Tambah Proyek")
+	fmt.Println("2. Perbarui Proyek")
+	fmt.Println("3. Cari Proyek")
+	fmt.Println("4. Tampilkan Proyek")
 	fmt.Println("5. Tutup App")
 	fmt.Println("--------------------------------------------------------------------------------------------------")
 	fmt.Print("Silahkan pilih opsi: ")
@@ -82,7 +84,7 @@ func tambahproyek() {
 	fmt.Print("Jumlah Bayaran: ")
 	fmt.Scan(&daftar[no].bayaran)
 
-	fmt.Print("Status: ")
+	fmt.Print("Status Pengerjaan(Selesai/Pending): ")
 	fmt.Scan(&daftar[no].status)
 
 	fmt.Print("Deadline(DD-MM-YYYY): ")
@@ -120,23 +122,48 @@ func cari() {
 }
 
 func cariklien() {
-	var i, size int = 0, 1
 	var key string
 	fmt.Print("Masukkan Nama Klien: ")
 	fmt.Scan(&key)
 
-	head()
-	for i < no {
-		if daftar[i].klien == key {
-			fmt.Printf("%-2d | %-24s | %-24s | %-10d | %-8s | %s\n", size, daftar[i].nama, daftar[i].klien, daftar[i].bayaran, daftar[i].status, daftar[i].deadline)
-			size++
+	// Urutkan daftar berdasarkan nama klien (ascending)
+	for i := 0; i < no-1; i++ {
+		for j := i + 1; j < no; j++ {
+			if daftar[i].klien > daftar[j].klien {
+				daftar[i], daftar[j] = daftar[j], daftar[i]
+			}
 		}
-		i++
 	}
-	if size <= 0 {
-		fmt.Println("data yang cocok tidak ditemukan")
+
+	low, high := 0, no-1
+	found := false
+	head()
+	for low <= high && !found {
+		mid := (low + high) / 2
+		if daftar[mid].klien == key {
+			i := mid
+			for i >= 0 && daftar[i].klien == key {
+				i--
+			}
+			i++
+			size := 1
+			for i < no && daftar[i].klien == key {
+				fmt.Printf("%-2d | %-24s | %-24s | %-10d | %-8s | %s\n", size, daftar[i].nama, daftar[i].klien, daftar[i].bayaran, daftar[i].status, daftar[i].deadline.Format("02-01-2006"))
+				i++
+				size++
+			}
+			found = true
+		} else if daftar[mid].klien < key {
+			low = mid + 1
+		} else {
+			high = mid - 1
+		}
+	}
+	if !found {
+		fmt.Println("Data tidak ditemukan")
 	}
 	tunggu()
+	clear()
 }
 
 func cariproyek() {
@@ -154,7 +181,7 @@ func cariproyek() {
 		i++
 	}
 	if size <= 0 {
-		fmt.Println("data yang cocok tidak ditemukan")
+		fmt.Println("Data tidak ditemukan")
 	}
 	tunggu()
 }
@@ -166,9 +193,9 @@ func tampil() {
 		fmt.Printf("%-2d | %-24s | %-24s | %-10d | %-8s | %s (%d hari lagi)\n", i+1, daftar[i].nama, daftar[i].klien, daftar[i].bayaran, daftar[i].status, daftar[i].deadline.Format("02-01-2006"), daftar[i].sisa)
 		i++
 	}
-	fmt.Println("--------------------------------------------------------------------------------------------------")
+	fmt.Println("------------------------------------------------------------------------------------------------------------")
 	fmt.Println("1. Back to menu")
-	fmt.Println("2. sort")
+	fmt.Println("2. Urutkan")
 	fmt.Println("3. Hapus")
 	fmt.Println("4. Edit")
 	fmt.Print("Opsi: ")
@@ -178,7 +205,7 @@ func tampil() {
 		clear()
 		return
 	case 2:
-		fmt.Println("--------------------------------------------------------------------------------------------------")
+		fmt.Println("----------------------------------------------------------------------------------------------------")
 		fmt.Println("1. Deadline ")
 		fmt.Println("2. Gaji")
 		fmt.Println("3. Back to menu")
@@ -220,8 +247,8 @@ func hapus() {
 func sortdeadline() {
 	var opsi int
 	fmt.Println("Urutkan berdasarkan deadline:")
-	fmt.Println("1. Dari terbesar ke terkecil")
-	fmt.Println("2. Dari terkecil ke terbesar")
+	fmt.Println("1. Dari terlama ke tercepat")
+	fmt.Println("2. Dari tercepat ke terlama")
 	fmt.Print("Opsi: ")
 	fmt.Scan(&opsi)
 	if opsi != 1 && opsi != 2 {
@@ -240,8 +267,9 @@ func sortdeadline() {
 			daftar[i], daftar[temp] = daftar[temp], daftar[i]
 		}
 	}
-	fmt.Println("Data berhasil diurutkan berdasarkan gaji.")
-	tunggu()
+	clear()
+	fmt.Println("Data berhasil diurutkan berdasarkan deadline.")
+	tampil()
 }
 
 func sortgaji() {
@@ -256,32 +284,38 @@ func sortgaji() {
 		return
 	}
 	clear()
-	for i := 0; i < no-1; i++ {
-		temp := i
-		for j := i + 1; j < no; j++ {
-			if (opsi == 1 && daftar[j].bayaran > daftar[temp].bayaran) || (opsi == 2 && daftar[j].bayaran < daftar[temp].bayaran) {
-				temp = j
+	for i := 1; i < no; i++ {
+		temp := daftar[i]
+		j := i - 1
+		if opsi == 1 {
+			for j >= 0 && daftar[j].bayaran < temp.bayaran {
+				daftar[j+1] = daftar[j]
+				j--
+			}
+		} else {
+			for j >= 0 && daftar[j].bayaran > temp.bayaran {
+				daftar[j+1] = daftar[j]
+				j--
 			}
 		}
-		if temp != i {
-			daftar[i], daftar[temp] = daftar[temp], daftar[i]
-		}
+		daftar[j+1] = temp
 	}
+	clear()
 	fmt.Println("Data berhasil diurutkan berdasarkan gaji.")
 	tampil()
 }
 
 func head() {
-	fmt.Println("----------------------------------------------------------------------------------------------")
-	fmt.Println("No | Nama Proyek            | Nama Klien            | Gaji       | Status   | Deadline")
-	fmt.Println("----------------------------------------------------------------------------------------------")
+	fmt.Println("------------------------------------------------------------------------------------------------------------")
+	fmt.Printf("%-2s | %-24s | %-24s | %-10s | %-8s | %s\n", "No", "Nama Proyek", "Nama Klien", "Bayaran", "Status", "Deadline")
+	fmt.Println("------------------------------------------------------------------------------------------------------------")
 }
 
 func sisawaktu() {
 	var selisih time.Duration
 	for i := 0; i <= no; i++ {
 		selisih = daftar[i].deadline.Sub(time.Now())
-		daftar[i].sisa = int(selisih.Hours() / 24)
+		daftar[i].sisa = int(selisih.Hours()/24) + 1
 	}
 }
 
