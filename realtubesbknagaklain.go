@@ -126,7 +126,6 @@ func cariklien() {
 	fmt.Print("Masukkan Nama Klien: ")
 	fmt.Scan(&key)
 
-	// Urutkan daftar berdasarkan nama klien (ascending)
 	for i := 0; i < no-1; i++ {
 		for j := i + 1; j < no; j++ {
 			if daftar[i].klien > daftar[j].klien {
@@ -148,7 +147,7 @@ func cariklien() {
 			i++
 			size := 1
 			for i < no && daftar[i].klien == key {
-				fmt.Printf("%-2d | %-24s | %-24s | %-10d | %-8s | %s\n", size, daftar[i].nama, daftar[i].klien, daftar[i].bayaran, daftar[i].status, daftar[i].deadline.Format("02-01-2006"))
+				fmt.Printf("%-2d | %-24s | %-24s | %-10d | %-8s | %s (sisa %d hari lagi)\n", size, daftar[i].nama, daftar[i].klien, daftar[i].bayaran, daftar[i].status, daftar[i].deadline.Format("02-01-2006"), daftar[i].sisa)
 				i++
 				size++
 			}
@@ -237,7 +236,6 @@ func hapus() {
 	for j := i - 1; j < no-1; j++ {
 		daftar[j] = daftar[j+1]
 	}
-
 	no--
 	fmt.Println("Proyek berhasil dihapus.")
 	tunggu()
